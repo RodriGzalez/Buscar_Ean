@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -30,23 +31,24 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
 {
     $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => [
-            'required', 
-            'string', 
-            'lowercase', 
-            'email', 
-            'max:255', 
-            'unique:'.User::class,
-            // Agregamos esta línea para validar el dominio
-            'regex:/^[a-zA-Z0-9._%+-]+@chedraui\.com\.mx$/i'
-        ],
-        'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        // tus validaciones...
+        'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'regex:/@chedraui\.com\.mx$/'],
     ], [
-        // Mensaje de error personalizado en español
         'email.regex' => 'Solo se permiten registros con correos de @chedraui.com.mx',
     ]);
 
-    // ... resto del código para crear el usuario
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+    ]);
+
+    event(new Registered($user));
+
+    Auth::login($user);
+
+    // ESTA ES LA LÍNEA QUE TE FALTA:
+    return redirect('/login');
 }
+
 }
