@@ -4,6 +4,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="{{ asset('img/images.png') }}">
     <title>Buscador EAN</title>
+
+    @vite(['resources/css/style.css'])
 </head>
 <body class="bg-light">
 
@@ -26,7 +28,7 @@
             </div>
         </form>
 
-        <table class="table table-striped table-hover bg-white shadow-sm">
+        <table class="table table-striped table-hover bg-white shadow-sm" id="table-ean">
             <thead class="table-dark">
                 <tr>
                     <th>Material (MATNR)</th>
@@ -51,6 +53,11 @@
 
 
     </div>
-
+    <footer class="footer-main">
+        <div class="container">
+            <p>&copy; 2026 Soporte Omnicanal TI Chedraui</p>
+            <p>Desarrollado por <span class="author">Rodrigo González A.</span></p>
+        </div>
+    </footer>
 </body>
 </html>

@@ -1,0 +1,23 @@
+.footer-main {
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa; /* Gris muy claro */
+    border-top: 1px solid #dee2e6;
+    margin-top: 50px;
+}
+
+.footer-main p {
+    font-size: 0.9rem;
+    /* Aplicando transparencia al texto para que no distraiga tanto */
+    color: rgba(0, 0, 0, 0.6); 
+    margin: 5px 0;
+}
+
+.author {
+    font-weight: bold;
+    /* Un toque de color de marca con ligera transparencia */
+    color: rgba(255, 105, 0, 0.9); /* Ejemplo: Naranja Chedraui */
+}
+#table-ean{
+    margin-bottom: 400px;
+}
