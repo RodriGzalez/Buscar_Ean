@@ -4,9 +4,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MeanController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::get('/buscar', [MeanController::class, 'buscar'])
     ->middleware(['auth'])
