@@ -3,10 +3,12 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MeanController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EanController;
 
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+Route::post('/actualizar-ean', [EanController::class, 'actualizar'])->name('ean.actualizar');
 
 Route::get('/buscar', [MeanController::class, 'buscar'])
     ->middleware(['auth'])
