@@ -55,7 +55,7 @@
         @endif
         <div class="row justify-content-center">
         <div class="col-md-5">
-        <h3 class="mt-4">Actualizar EAN</h3>
+        <h3 class="mt-4">Actualizar Picking Result</h3>
 
         @if(session('success'))
             <div class="alert alert-success mt-3">{{ session('success') }}</div>
