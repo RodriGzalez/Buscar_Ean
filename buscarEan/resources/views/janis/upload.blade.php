@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Actualización Masiva Janis</title>
+    <link rel="icon" type="image/png" href="{{ asset('img/images.png') }}">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -94,6 +95,18 @@
             counter.classList.remove('text-danger');
             btn.disabled = false;
         }
+    });
+    document.querySelector('form').addEventListener('submit', function() {
+        // Esto le da feedback al usuario de que el proceso inició
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando y descargando...';
+        
+        // Re-habilitar después de unos segundos porque la descarga no recarga la página
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerText = 'Actualizar SKUs';
+        }, 5000);
     });
 </script>
 
