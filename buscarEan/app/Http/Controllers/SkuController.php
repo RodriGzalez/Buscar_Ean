@@ -1,12 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ImportacionFinalizada;
-
+use Illuminate\Support\Facades\Response;
 
 class SkuController extends Controller
 {
@@ -21,25 +20,29 @@ class SkuController extends Controller
             'sku_data' => 'required|string',
         ]);
 
-        // 1. Convertimos el contenido del textarea en un array de líneas
-        // str_replace limpia los saltos de línea de Windows (\r)
+        // 1. Procesamiento de datos y respaldo del texto original
         $rawText = str_replace("\r", "", $request->input('sku_data'));
         $lines = explode("\n", $rawText);
+        
         $dataToSync = [];
+        $originalRows = []; // Aquí guardaremos lo que el usuario mandó
 
         foreach ($lines as $line) {
-            // Saltamos líneas vacías
-            if (empty(trim($line)))
-                continue;
+            $trimmedLine = trim($line);
+            if (empty($trimmedLine)) continue;
 
-            $column = explode(',', $line);
-
-            // Validamos que la línea tenga exactamente 2 elementos (sku y code)
+            $column = explode(',', $trimmedLine);
             if (count($column) == 2) {
+                $sku = trim($column[0]);
+                $code = trim($column[1]);
+                
                 $dataToSync[] = [
-                    "referenceId" => trim($column[0]),
-                    "manufacturerCode" => trim($column[1])
+                    "referenceId" => $sku,
+                    "manufacturerCode" => $code
                 ];
+                
+                // Guardamos la fila original para el reporte
+                $originalRows[] = ['sku' => $sku, 'code' => $code];
             }
         }
 
@@ -47,14 +50,11 @@ class SkuController extends Controller
             return back()->with('error', 'No se detectaron datos válidos. Revisa el formato sku,code.');
         }
 
-        // 2. Procesamiento por lotes (Chunks de 100) para no saturar la API
+        // 2. Procesamiento por lotes en Janis
         $chunks = array_chunk($dataToSync, 100);
-        $results = [];
+        $batchResults = [];
 
         foreach ($chunks as $index => $batch) {
-            // Contamos cuántos SKUs hay en este lote específico
-            $cantidadEnLote = count($batch);
-
             try {
                 $response = Http::withHeaders([
                     'Content-Type' => 'application/json',
@@ -63,40 +63,46 @@ class SkuController extends Controller
                     'janis-client' => config('services.janis.client'),
                 ])->post('https://catalog.janis.in/api/sku-batch', $batch);
 
-                if ($response->successful()) {
-                    // Personalizamos el mensaje con la cantidad de SKUs
-                    $results[] = "SKUs actualizados: " . $cantidadEnLote;
-                } else {
-                    $results[] = "Error al procesar " . $cantidadEnLote . " SKUs";
-                    Log::error("Error en lote Janis", ['res' => $response->json()]);
-                }
+                // Guardamos el resultado del lote para aplicarlo a las filas originales
+                $status = $response->successful() ? 'Éxito' : 'Error API Janis';
+                $batchResults[$index] = $status;
 
             } catch (\Exception $e) {
-                $results[] = "Fallo de conexión (" . $cantidadEnLote . " SKUs)";
+                $batchResults[$index] = 'Fallo de conexión';
                 Log::error($e->getMessage());
             }
         }
 
-        // 3. Notificación por correo
-        // Si no tienes login, puedes poner tu correo directamente
-        $user = auth()->user();
+        // 3. Generación del CSV con datos originales + resultados
+        $fileName = 'sku_actualizado_' . now()->format('Ymd_His') . '.csv';
 
-        if ($user && $user->email) {
-            try {
-                // Enviamos los resultados de los lotes Y los datos originales para el CSV
-                Mail::to($user->email)->send(new ImportacionFinalizada($results, $dataToSync));
+        return response()->streamDownload(function () use ($originalRows, $batchResults) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM para Excel
+            
+            fputcsv($file, ['REPORTE DETALLADO DE IMPORTACIÓN']);
+            fputcsv($file, ['Fecha', now()->toDateTimeString()]);
+            fputcsv($file, []);
+            
+            // Encabezados de la tabla
+            fputcsv($file, ['SKU (Original)', 'Código (Original)', 'Estado del Lote']);
 
-                $mensaje = 'Importación exitosa. Revisa tu correo, se adjuntó el CSV de respaldo.';
-            } catch (\Exception $e) {
-                Log::error("Error SMTP Office365: " . $e->getMessage());
-                $mensaje = 'Sincronización OK, pero el correo falló.';
+            // Mapeamos cada fila original con el resultado de su lote correspondiente
+            foreach ($originalRows as $index => $row) {
+                // Calculamos a qué lote (chunk) pertenecía esta fila
+                $chunkIndex = floor($index / 100);
+                $status = $batchResults[$chunkIndex] ?? 'No procesado';
+
+                fputcsv($file, [
+                    $row['sku'],
+                    $row['code'],
+                    $status
+                ]);
             }
-        }
-
-        return back()->with('status', $mensaje);
-
+            
+            fclose($file);
+        }, $fileName, [
+            'Content-Type' => 'text/csv',
+        ]);
     }
-
 }
-
-
