@@ -12,10 +12,10 @@
 <body class="bg-light">
 
     <div class="container mt-5">
-    <form method="POST" action="{{ route('logout') }}">
+    <form method="GET" action="{{ route('menu') }}">
         @csrf
         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <button class="btn btn-danger" type="submit">Cerrar Sesión</button>
+            <button class="btn btn-primary" type="submit">Regresar al Menu</button>
         </div>
     </form>
         <h2 class="mb-4">Buscar EAN</h2>

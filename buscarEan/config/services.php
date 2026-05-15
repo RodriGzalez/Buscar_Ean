@@ -34,5 +34,9 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
-
+    'janis' => [
+    'key' => env('API_JANIS_KEY'),
+    'token' => env('API_JANIS_TOKEN'),
+    'client' => env('API_JANIS_CLIENT'),
+    ],
 ];
