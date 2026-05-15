@@ -32,15 +32,11 @@ Route::middleware('auth')->group(function () {
             if (auth()->check() && auth()->user()->role === 'admin') {
                 return $next($request);
             }
-
             return redirect()->route('menu')->with('error', 'No tienes permiso para registrar usuarios.');
         }
     ], function () {
-
-        // Aquí dentro colocamos las rutas que solo el admin puede usar
         Route::get('register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'create'])->name('register');
         Route::post('register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'store']);
-
     });
 });
 
