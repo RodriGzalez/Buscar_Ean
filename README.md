@@ -1,4 +1,4 @@
-# Proyecto Buscar EAN 
+# Entorno de desarrollo Proyecto Buscar EAN 
 **Soporte Omnicanal TI Chedraui** *Desarrollado por: Rodrigo González A.*
 
 Aplicativo diseñado para la gestión, búsqueda de códigos EAN y actualización de Picking Result mediante integración con API externa.

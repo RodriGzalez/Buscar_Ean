@@ -41,6 +41,7 @@ class RegisteredUserController extends Controller
         'name' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
+        'role' => $request->role,
     ]);
 
     event(new Registered($user));
@@ -48,7 +49,7 @@ class RegisteredUserController extends Controller
     Auth::login($user);
 
     // ESTA ES LA LÍNEA QUE TE FALTA:
-    return redirect('/login');
+    return redirect('/menu');
 }
 
 }
