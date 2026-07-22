@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/janis-update', [SkuController::class, 'index']);
     Route::post('/janis-update', [SkuController::class, 'update'])->name('janis.update');
     Route::get('/menu', [MenuController::class, 'menu'])->name('menu');
+    Route::get('/validar-janis', [EanController::class, 'validarJanis'])->name('ean.validar_janis');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
