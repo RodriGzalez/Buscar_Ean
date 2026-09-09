@@ -8,12 +8,12 @@ use App\Http\Controllers\SkuController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+
 
 Route::middleware('auth')->group(function () {
-
+    Route::get('/', function () {
+    return view('auth.login');
+});
     Route::post('/actualizar-ean', [EanController::class, 'actualizar'])->name('ean.actualizar');
     Route::get('/buscar', [MeanController::class, 'buscar'])
         ->middleware(['auth'])
